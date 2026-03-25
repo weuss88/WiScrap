@@ -46,20 +46,29 @@ def slugify_location(loc: str) -> str:
 
 def build_pap_search_url(params, page: int = 1) -> str:
     """
-    PAP utilise une URL de recherche avec paramètres GET.
-    ex: https://www.pap.fr/annonce/ventes-immobilieres-paris-g439?nb-pieces=3
+    PAP.fr API de recherche :
+    https://www.pap.fr/annonce/ventes-immobilieres?recherche[geo][nom_departement]=Paris&...
+    Ou format simplifié via le moteur de recherche interne.
     """
     type_slug = "ventes-immobilieres" if params.type_bien == "ventes" else "locations-immobilieres"
-    loc_slug = slugify_location(params.localisation)
+    loc = params.localisation.strip()
 
-    # PAP accepte aussi la recherche directe via /recherche
-    search_params: dict = {"place": loc_slug}
+    search_params: dict = {}
+
+    # Localisation
+    if re.match(r'^\d{5}$', loc):
+        search_params["recherche[localites]"] = loc
+    elif re.match(r'^\d{2}$', loc):
+        search_params["recherche[localites]"] = loc
+    else:
+        search_params["recherche[localites]"] = loc
+
     if params.prix_max:
-        search_params["prix-max"] = str(params.prix_max)
+        search_params["recherche[prix_max]"] = str(params.prix_max)
     if params.pieces_min:
-        search_params["nb-pieces"] = str(params.pieces_min)
+        search_params["recherche[nb_pieces_min]"] = str(params.pieces_min)
     if page > 1:
-        search_params["page"] = str(page)
+        search_params["p"] = str(page)
 
     qs = urlencode(search_params)
     return f"{BASE_URL}/annonce/{type_slug}?{qs}"
@@ -92,12 +101,15 @@ def extract_phone(soup_item: BeautifulSoup) -> str:
 def parse_pap_listings(html: str) -> list[dict]:
     soup = BeautifulSoup(html, "html.parser")
 
-    # PAP utilise des articles ou des li pour chaque annonce
+    # PAP utilise des articles ou des li pour chaque annonce (plusieurs versions possibles)
     items = (
         soup.select("article.search-list-item")
         or soup.select("li.search-list-item")
+        or soup.select("article[data-id]")
         or soup.select("[data-id]")
         or soup.select(".item-list .item")
+        or soup.select("ul.listingAds > li")
+        or soup.select(".listing-item")
     )
 
     leads = []

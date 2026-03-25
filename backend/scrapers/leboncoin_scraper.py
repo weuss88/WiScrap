@@ -73,9 +73,13 @@ def build_lbc_url(params, page: int = 1) -> str:
     if params.type_vendeur != "all":
         p.append(f"owner_type={params.type_vendeur}")
 
-    loc_params = parse_cp_location(params.localisation)
-    for k, v in loc_params.items():
-        p.append(f"locations={v}")  # simplifié — LBC accepte aussi le format direct
+    loc = params.localisation.strip()
+    if re.match(r'^\d{2}$', loc):
+        p.append(f"departments={loc}")          # département: departments=75
+    elif re.match(r'^\d{5}$', loc):
+        p.append(f"zipcodes={loc}")             # CP: zipcodes=75001
+    else:
+        p.append(f"locations={quote(loc)}")     # ville: locations=Paris
 
     price_parts = []
     if params.prix_min is not None:
@@ -116,14 +120,18 @@ def parse_ads(html: str) -> list[dict]:
         return []
     try:
         data = json.loads(script.string)
-        ads = (
-            data.get("props", {})
-            .get("pageProps", {})
-            .get("initialProps", {})
-            .get("searchData", {})
-            .get("ads", [])
-        )
-        return ads
+        pp = data.get("props", {}).get("pageProps", {})
+        # Essai des différents chemins selon la version du site
+        candidates = [
+            pp.get("initialProps", {}).get("searchData", {}).get("ads", []),
+            pp.get("searchData", {}).get("ads", []),
+            pp.get("initialData", {}).get("searchData", {}).get("ads", []),
+            pp.get("data", {}).get("ads", []),
+        ]
+        for ads in candidates:
+            if ads:
+                return ads
+        return []
     except (json.JSONDecodeError, KeyError, TypeError):
         return []
 
