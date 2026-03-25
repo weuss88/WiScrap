@@ -50,7 +50,6 @@ export default function Home() {
 
   return (
     <main className="min-h-screen">
-      {/* Header */}
       <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -69,18 +68,15 @@ export default function Home() {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-6">
-
-        {/* Hero */}
         <div className="text-center pb-2">
           <h2 className="text-2xl sm:text-3xl font-bold text-white">
-            Collecte de leads <span className="text-brand-400">B2B & B2C</span>
+            Collecte de leads <span className="text-brand-400">B2B &amp; B2C</span>
           </h2>
           <p className="text-slate-500 text-sm mt-2">
             France · Belgique · Google Maps · LeBonCoin · PAP.fr
           </p>
         </div>
 
-        {/* Tabs */}
         <div className="card p-0 overflow-hidden">
           <div className="flex border-b border-slate-800">
             {TABS.map(tab => (
@@ -104,53 +100,30 @@ export default function Home() {
 
           <div className="p-5">
             {activeTab === 'maps_fr' && (
-              <MapsForm
-                pays="FR"
-                onSubmit={(source, p) => startJob(source, p)}
-                loading={loading}
-              />
+              <MapsForm pays="FR" onSubmit={(source, p) => startJob(source, p)} loading={loading} />
             )}
             {activeTab === 'maps_be' && (
-              <MapsForm
-                pays="BE"
-                onSubmit={(source, p) => startJob(source, p)}
-                loading={loading}
-              />
+              <MapsForm pays="BE" onSubmit={(source, p) => startJob(source, p)} loading={loading} />
             )}
             {activeTab === 'leboncoin' && (
-              <LeboncoinForm
-                onSubmit={p => startJob('leboncoin', p)}
-                loading={loading}
-              />
+              <LeboncoinForm onSubmit={p => startJob('leboncoin', p)} loading={loading} />
             )}
             {activeTab === 'pap' && (
-              <PapForm
-                onSubmit={p => startJob('pap', p)}
-                loading={loading}
-              />
+              <PapForm onSubmit={p => startJob('pap', p)} loading={loading} />
             )}
           </div>
         </div>
 
-        {/* Progression */}
-        <JobProgress
-          jobId={jobId}
-          status={jobStatus}
-          onStatusChange={setJobStatus}
-          onDone={handleDone}
-        />
+        <JobProgress jobId={jobId} status={jobStatus} onStatusChange={setJobStatus} onDone={handleDone} />
 
-        {/* Export (mobile) */}
         {leads.length > 0 && (
           <div className="sm:hidden">
             <ExportButtons jobId={jobId} total={leads.length} />
           </div>
         )}
 
-        {/* Résultats */}
         <ResultsTable leads={leads} source={currentSource} />
 
-        {/* Stats */}
         {leads.length > 0 && (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
@@ -168,7 +141,6 @@ export default function Home() {
         )}
       </div>
 
-      {/* Footer */}
       <footer className="border-t border-slate-800 mt-16 py-6 text-center text-xs text-slate-600">
         WiScrap — Scraper Google Maps · LeBonCoin · PAP.fr · France &amp; Belgique
       </footer>
