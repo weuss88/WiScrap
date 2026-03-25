@@ -6,6 +6,7 @@
 #  Export  : CSV + JSON + Excel (via FastAPI /export)
 # ============================================================
 import asyncio
+import os
 import re
 import time
 from urllib.parse import quote
@@ -71,11 +72,19 @@ def init_driver() -> webdriver.Chrome:
         "--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
         "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
     )
-    if USE_WDM:
+    chrome_bin = os.environ.get("CHROME_BIN")
+    if chrome_bin:
+        options.binary_location = chrome_bin
+
+    chromedriver_path = os.environ.get("CHROMEDRIVER_PATH")
+    if chromedriver_path and os.path.exists(chromedriver_path):
+        service = Service(chromedriver_path)
+    elif USE_WDM:
         service = Service(ChromeDriverManager().install())
-        driver = webdriver.Chrome(service=service, options=options)
     else:
-        driver = webdriver.Chrome(options=options)
+        service = Service()
+
+    driver = webdriver.Chrome(service=service, options=options)
 
     driver.set_page_load_timeout(PAGELOAD_SEC)
     driver.execute_script(
