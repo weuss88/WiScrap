@@ -25,11 +25,11 @@ except ImportError:
     USE_WDM = False
 
 # ── Config ────────────────────────────────────────────────
-WAIT_SEC         = 12
-PAGELOAD_SEC     = 35
-SCROLL_PAUSE_SEC = 0.8
-MAX_SCROLL_TRIES = 30
-RETRIES_PER_URL  = 2
+WAIT_SEC         = 6
+PAGELOAD_SEC     = 15
+SCROLL_PAUSE_SEC = 0.5
+MAX_SCROLL_TRIES = 20
+RETRIES_PER_URL  = 1
 
 
 # ── Utilitaires ───────────────────────────────────────────
